@@ -40,7 +40,16 @@ bot.manager = Manager(bot.datastore)
 @commands.has_role(603803993562677258)
 async def build_stats(ctx, channel: discord.TextChannel = None):
     """Builds stats for the given channel"""
-    await bot.manager.build_past_conversations(channel)
+    async with ctx.typing():
+        convos = await bot.manager.build_past_conversations(channel)
+
+    total_messages = 0
+    for convo in convos:
+        total_messages += len(convo.messages)
+
+    await ctx.send(
+        f"Total conversations: `{len(convos)}`\nTotal messages:`{total_messages}`"
+    )
 
 
 @bot.command(aliases=["ah"])

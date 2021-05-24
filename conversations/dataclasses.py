@@ -21,7 +21,6 @@ class Conversation:
     user_being_helped: int = attr.ib()
 
     # Things to set later
-    total_messages: int = attr.ib(default=0)
     last_message_id: int = attr.ib(default=None)
     messages: List[Message] = attr.ib(default=list())
 

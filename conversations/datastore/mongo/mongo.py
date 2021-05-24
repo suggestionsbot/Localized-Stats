@@ -51,7 +51,7 @@ class Mongo(DataStore):
         as_dict.pop("identifier")
 
         filter_dict = {"identifier": helper.identifier}
-        await self.conversations.upsert(filter_dict, as_dict)
+        await self.helpers.upsert(filter_dict, as_dict)
 
     async def remove_helper(self, identifier: int) -> None:
         pass

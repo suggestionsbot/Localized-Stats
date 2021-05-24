@@ -1,5 +1,4 @@
 import itertools
-from pprint import pprint
 
 import discord
 
@@ -26,6 +25,7 @@ class Manager:
         """
         if not self.helpers:
             self.helpers = await self.datastore.fetch_helpers()
+            self.helper_ids = [helper.identifier for helper in self.helpers]
 
         if self.conversation_identifier() == 1:
             current_conversation_id = (
@@ -46,7 +46,7 @@ class Manager:
         conversation = None
         finished = []
         async for message in channel.history(limit=None, oldest_first=True):
-            if not conversation and message.author.id not in self.helpers:
+            if not conversation and message.author.id not in self.helper_ids:
                 # Start a new conversation
                 conversation = Conversation(
                     message.id,
@@ -59,9 +59,8 @@ class Manager:
             elif (
                 conversation
                 and message.author.id != conversation.user_being_helped
-                and message.author.id not in self.helpers
+                and message.author.id not in self.helper_ids
             ):
-                break  # for testing purposes
                 # Start a new conversation
                 finished.append(conversation)
 
@@ -73,7 +72,6 @@ class Manager:
                     identifier=self.get_next_conversation_id(),
                 )
 
-            conversation.total_messages += 1
             conversation.messages.append(
                 Message(
                     message.author.id,
@@ -81,11 +79,17 @@ class Manager:
                     message.content,
                     message.guild.id,
                     message.id,
-                    is_helper=True if message.author.id in self.helpers else False,
+                    is_helper=True if message.author.id in self.helper_ids else False,
                 )
             )
 
-        pprint(finished)
+            conversation.last_message_id = message.id
+
+        # Finish the last convo and add it
+        finished.append(conversation)
+
+        # pprint(finished)
+        return finished
 
     @classmethod
     def get_next_conversation_id(cls) -> int:
