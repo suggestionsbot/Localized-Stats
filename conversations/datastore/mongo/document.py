@@ -1,16 +1,7 @@
 import collections
 
-"""
-A helper file for using mongo db
-Class document aims to make using mongo calls easy, saves
-needing to know the syntax for it. Just pass in the db instance
-on init and the document to create an instance on and boom
-"""
-
 
 class Document:
-    _version = 3  # A flag for use during help
-
     def __init__(self, connection, document_name):
         self.db = connection[document_name]
 
@@ -68,7 +59,6 @@ class Document:
 
     async def update_by_id(self, data, option="set", *args, **kwargs):
         self.__ensure_dict(data)
-        self.__ensure_id(data)
 
         if await self.find_by_id(data["_id"]) is None:
             return await self.insert(data)
@@ -102,7 +92,6 @@ class Document:
 
     async def unset(self, data):
         self.__ensure_dict(data)
-        self.__ensure_id(data)
 
         if await self.find_by_id(data["_id"]) is None:
             return
@@ -123,7 +112,3 @@ class Document:
     @staticmethod
     def __ensure_dict(data):
         assert isinstance(data, collections.abc.Mapping)
-
-    @staticmethod
-    def __ensure_id(data):
-        assert "_id" in data
