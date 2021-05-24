@@ -18,11 +18,12 @@ class Message:
 class Conversation:
     # Things to set
     first_message_id: int = attr.ib()
+    user_being_helped: int = attr.ib()
 
     # Things to set later
     total_messages: int = attr.ib(default=0)
     last_message_id: int = attr.ib(default=None)
-    messages: List[Message] = attr.ib(default=list)
+    messages: List[Message] = attr.ib(default=list())
 
     # Things we want at init, but are iffy
     identifier: int = attr.ib(kw_only=True)
@@ -35,7 +36,7 @@ class Conversation:
 
 @attr.s(slots=True)
 class Helper:
-    identifier: int = attr.ib()
-    total_messages: int = attr.ib(default=0)
-    total_conversations: int = attr.ib(default=0)
-    messages_per_conversation: List[int] = attr.ib(default=list)
+    identifier: int = attr.ib(eq=True)
+    total_messages: int = attr.ib(default=0, eq=False)
+    total_conversations: int = attr.ib(default=0, eq=False)
+    messages_per_conversation: List[int] = attr.ib(default=list, eq=False)
