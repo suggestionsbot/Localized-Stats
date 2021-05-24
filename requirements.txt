@@ -1,0 +1,4 @@
+buttons==0.1.9
+dnspython==2.1.0
+motor==2.4.0
+pip-chill==1.0.1
