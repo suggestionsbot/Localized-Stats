@@ -24,8 +24,13 @@ class Manager:
         things are setup before usage
         """
         if not self.helpers:
-            self.helpers = await self.datastore.fetch_helpers()
-            self.helper_ids = [helper.identifier for helper in self.helpers]
+            helpers = await self.datastore.fetch_helpers()
+
+            self.helpers = {}
+            for helper in helpers:
+                self.helpers[helper.identifier] = helper
+
+            self.helper_ids = list(self.helpers.keys())
 
         if self.conversation_identifier() == 1:
             current_conversation_id = (
@@ -45,6 +50,7 @@ class Manager:
 
         conversation = None
         finished = []
+        current_helpers = {}
         async for message in channel.history(limit=None, oldest_first=True):
             if not conversation and message.author.id not in self.helper_ids:
                 # Start a new conversation
@@ -62,6 +68,13 @@ class Manager:
                 and message.author.id not in self.helper_ids
             ):
                 # Start a new conversation
+                for helper_id, msg_count in current_helpers.items():
+                    self.helpers[helper_id].messages_per_conversation.append(msg_count)
+                    self.helpers[helper_id].total_conversations += 1
+
+                current_helpers = {}
+
+                await self.datastore.save_conversation(conversation)
                 finished.append(conversation)
 
                 conversation = Conversation(
@@ -71,6 +84,15 @@ class Manager:
                     guild_id=message.guild.id,
                     identifier=self.get_next_conversation_id(),
                 )
+
+            if message.author.id in self.helper_ids:
+                if message.author.id not in current_helpers:
+                    current_helpers[message.author.id] = 0
+
+                current_helpers[message.author.id] += 1
+
+                helper = self.helpers[message.author.id]
+                helper.total_messages += 1
 
             conversation.messages.append(
                 Message(
@@ -88,7 +110,9 @@ class Manager:
         # Finish the last convo and add it
         finished.append(conversation)
 
-        # pprint(finished)
+        for helper in self.helpers.values():
+            await self.datastore.store_helper(helper)
+
         return finished
 
     @classmethod

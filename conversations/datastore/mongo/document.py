@@ -82,6 +82,9 @@ class Document:
     async def get_document_count(self) -> int:
         return await self.db.count_documents({})
 
+    async def create_index(self, key, spec):
+        await self.db.create_index([(key, spec)])
+
     @staticmethod
     def __ensure_dict(data):
         assert isinstance(data, collections.abc.Mapping)

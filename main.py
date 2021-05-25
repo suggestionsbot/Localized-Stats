@@ -68,6 +68,13 @@ async def logout(ctx):
     await bot.logout()
 
 
+@bot.command()
+@commands.is_owner()
+async def create_indexes(ctx):
+    """Log's the bot out of discord"""
+    await bot.datastore.create_indexes()
+
+
 @bot.command(name="eval", aliases=["exec"])
 @commands.is_owner()
 async def _eval(ctx, *, code):

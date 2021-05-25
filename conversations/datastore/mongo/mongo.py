@@ -1,6 +1,7 @@
 from typing import List
 
 import attr
+import pymongo
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from .document import Document
@@ -14,6 +15,11 @@ class Mongo(DataStore):
 
         self.conversations = Document(self.db, "conversations")
         self.helpers = Document(self.db, "helpers")
+
+    async def create_indexes(self):
+        """Creates indexes for faster lookup"""
+        await self.conversations.create_index("identifier", pymongo.ASCENDING)
+        await self.helpers.create_index("identifier", pymongo.ASCENDING)
 
     async def save_conversation(self, conversation: Conversation) -> None:
         as_dict = attr.asdict(conversation, recurse=True)

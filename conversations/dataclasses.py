@@ -22,7 +22,7 @@ class Conversation:
 
     # Things to set later
     last_message_id: int = attr.ib(default=None)
-    messages: List[Message] = attr.ib(default=list())
+    messages: List[Message] = attr.ib(default=attr.Factory(list))
 
     # Things we want at init, but are iffy
     identifier: int = attr.ib(kw_only=True)
