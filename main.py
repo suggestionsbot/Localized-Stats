@@ -75,6 +75,20 @@ async def create_indexes(ctx):
     await bot.datastore.create_indexes()
 
 
+@bot.command()
+@commands.is_owner()
+async def gen_scatter_timexmessages(ctx):
+    """Builds a scatter plot of Time x Messages"""
+    await bot.manager.build_timed_scatter_plot()
+
+
+@bot.command()
+@commands.is_owner()
+async def get_helper(ctx):
+    """Builds a scatter plot of Time x Messages"""
+    await bot.manager.build_helper_thing(ctx.guild)
+
+
 @bot.command(name="eval", aliases=["exec"])
 @commands.is_owner()
 async def _eval(ctx, *, code):

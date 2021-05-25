@@ -100,3 +100,26 @@ class DataStore(Protocol):
             The helper to remove
         """
         raise NotImplementedError
+
+    async def get_all_conversations(self) -> List[dict]:
+        """
+        Returns a list of all possible conversations yea idk
+
+        Returns
+        -------
+        List[dict]
+            A list of conversations used to
+            build dataclasses
+        """
+        raise NotImplementedError
+
+    async def get_all_helpers(self) -> List[dict]:
+        """
+        Returns a list of all helpers to make dataclasses for
+
+        Returns
+        -------
+        List[dict]
+            A list of helpers
+        """
+        raise NotImplementedError

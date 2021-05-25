@@ -1,3 +1,4 @@
+import datetime
 from typing import List
 
 import attr
@@ -19,9 +20,11 @@ class Conversation:
     # Things to set
     first_message_id: int = attr.ib()
     user_being_helped: int = attr.ib()
+    start_time: datetime.datetime = attr.ib()
 
     # Things to set later
     last_message_id: int = attr.ib(default=None)
+    end_time: datetime.datetime = attr.ib(default=None)
     messages: List[Message] = attr.ib(default=attr.Factory(list))
 
     # Things we want at init, but are iffy

@@ -1,8 +1,10 @@
 import itertools
+from typing import List
 
 import discord
+from matplotlib import pyplot as plt
 
-from conversations import Conversation, Message
+from conversations import Conversation, Message, Helper
 from conversations.abc import DataStore
 
 
@@ -57,6 +59,7 @@ class Manager:
                 conversation = Conversation(
                     message.id,
                     message.author.id,
+                    start_time=message.created_at,
                     channel_id=message.channel.id,
                     guild_id=message.guild.id,
                     identifier=self.get_next_conversation_id(),
@@ -80,6 +83,7 @@ class Manager:
                 conversation = Conversation(
                     message.id,
                     message.author.id,
+                    start_time=message.created_at,
                     channel_id=message.channel.id,
                     guild_id=message.guild.id,
                     identifier=self.get_next_conversation_id(),
@@ -106,14 +110,84 @@ class Manager:
             )
 
             conversation.last_message_id = message.id
+            conversation.end_time = message.created_at
 
         # Finish the last convo and add it
+        await self.datastore.save_conversation(conversation)
         finished.append(conversation)
 
         for helper in self.helpers.values():
             await self.datastore.store_helper(helper)
 
         return finished
+
+    async def build_timed_scatter_plot(self):
+        conversations = await self.fetch_all_conversations()
+        messages = [len(convo.messages) for convo in conversations]
+        time = [
+            ((convo.end_time - convo.start_time).total_seconds() / 60)
+            for convo in conversations
+        ]
+
+        plt.plot(time, messages, "o", color="black")
+        plt.xlabel("Time (Minutes)")
+        plt.ylabel("Messages (Per conversations)")
+        plt.title("Time x Messages in #support")
+        plt.show()
+
+    async def build_helper_thing(self, guild):
+        helpers = await self.fetch_all_helpers()
+
+        total_conversations = [helper.total_conversations for helper in helpers]
+
+        avg_messages = [helper.messages_per_conversation for helper in helpers]
+
+        y = []
+        for msg in avg_messages:
+            y.append(sum(msg) / len(msg))
+
+        plt.plot(total_conversations, y, "o", color="black")
+
+        for i in range(len(total_conversations)):
+            user = await guild.fetch_member(helpers[i].identifier)
+            plt.annotate(user.display_name, ((total_conversations[i] + 50), y[i]))
+
+        plt.xlabel("Total Support Conversations")
+        plt.ylabel("Average Messages Per Conversation")
+        plt.title("Total Support Conversations x Average Messages Per Convo")
+        plt.show()
+
+    async def fetch_all_helpers(self) -> List[Helper]:
+        raw_helpers = await self.datastore.get_all_helpers()
+        helpers = []
+        for helper in raw_helpers:
+            helper.pop("_id")
+            helpers.append(Helper(**helper))
+
+        return helpers
+
+    async def fetch_all_conversations(self) -> List[Conversation]:
+        """
+        Fetchs all conversations and builds the
+        relevant dataclasses before returning em
+
+        Returns
+        -------
+        List[Conversation]
+            It says it all
+        """
+        conversations = []
+        raw_convos = await self.datastore.get_all_conversations()
+        for convo in raw_convos:
+            convo.pop("_id")
+            messages = []
+            for message in convo["messages"]:
+                messages.append(Message(**message))
+
+            convo["messages"] = messages
+            conversations.append(Conversation(**convo))
+
+        return conversations
 
     @classmethod
     def get_next_conversation_id(cls) -> int:
