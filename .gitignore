@@ -1,3 +1,4 @@
 .idea/
 venv/
 *.json
+conversations/generated_plots/old/

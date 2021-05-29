@@ -71,7 +71,7 @@ async def logout(ctx):
 @bot.command()
 @commands.is_owner()
 async def create_indexes(ctx):
-    """Log's the bot out of discord"""
+    """Creates database indexes"""
     await bot.datastore.create_indexes()
 
 

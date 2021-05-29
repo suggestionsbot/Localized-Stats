@@ -1,3 +1,4 @@
+import datetime
 import itertools
 import os
 from pathlib import Path
@@ -202,7 +203,7 @@ class Manager:
         """Saves a plot to disk"""
         save_location = os.path.join(self.cwd, "generated_plots", name.value)
         if os.path.isfile(save_location):
-            os.remove(save_location)
+            self._preserve_plot(save_location, name.name)
 
         plot.savefig(save_location)
 
@@ -211,3 +212,15 @@ class Manager:
         saved_location = os.path.join(self.cwd, "generated_plots", name.value)
         file = discord.File(fp=saved_location, filename=name.value)
         return file
+
+    def _preserve_plot(self, old_plot_dir: str, dir_name: str):
+        """Preserves an old plot by moving it to a save directory"""
+        to_save_dir = os.path.join(self.cwd, "generated_plots", "old", dir_name.lower())
+        if not os.path.isdir(to_save_dir):
+            os.mkdir(to_save_dir)
+
+        timestamp = datetime.datetime.now()
+        new_file_name = f"replaced_at_{timestamp.strftime('%f_%S_%M_%H_%d_%m_%Y')}.png"
+        new_file_name = os.path.join(to_save_dir, new_file_name)
+
+        os.replace(old_plot_dir, new_file_name)
