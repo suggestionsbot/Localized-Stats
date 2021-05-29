@@ -4,10 +4,21 @@ from typing import Union
 import discord
 from discord.ext import commands
 
+from .subclassed_help import SubclassedHelp
+
 
 class StatBot(commands.Bot):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs, command_prefix=self.get_prefix)
+        super().__init__(
+            *args,
+            **kwargs,
+            command_prefix=self.get_prefix,
+            help_command=commands.DefaultHelpCommand(
+                command_attrs={
+                    "cooldown": commands.Cooldown(2, 2.5, commands.BucketType.user)
+                }
+            ),
+        )
 
         self.PREFIX = "$"
         self.mention = re.compile(r"^<@!?(?P<id>\d+)>$")
@@ -23,7 +34,7 @@ class StatBot(commands.Bot):
         return commands.when_mentioned_or(prefix)(self, message)
 
     async def on_ready(self):
-        print(f"{self.__class__.__name__} is up & ready to go")
+        print(f"{self.__class__.__name__}: Ready")
 
     async def on_message(self, message):
         # Ignore messages sent by bots
