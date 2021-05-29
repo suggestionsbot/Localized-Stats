@@ -97,11 +97,11 @@ async def build_helper_convos_vs_convo_length_plot(ctx: discord.ext.commands.Con
             title="Support Team\nConversations vs Average Conversation Length",
             timestamp=ctx.message.created_at,
         )
-        embed.set_image(url=f"attachment://{Plots.HELPER_CONVOS_VS_CONVO_LENGTH.value}")
-
         embed.set_footer(text="Valid as at")
 
-    await ctx.send(embed=embed, file=file)
+    await bot.send_attachment_in_embed(
+        ctx, embed, file, file_name=Plots.HELPER_CONVOS_VS_CONVO_LENGTH.value.lower()
+    )
 
 
 @bot.command(name="eval", aliases=["exec"])

@@ -1,4 +1,5 @@
 import re
+from typing import Union
 
 import discord
 from discord.ext import commands
@@ -45,9 +46,9 @@ class StatBot(commands.Bot):
         else:
             return content
 
+    @staticmethod
     async def send_attachment_in_embed(
-        self,
-        channel: discord.TextChannel,
+        channel: Union[discord.TextChannel, discord.ext.commands.Context],
         embed: discord.Embed,
         file: discord.File,
         file_name: str = None,
