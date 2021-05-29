@@ -4,8 +4,6 @@ from typing import Union
 import discord
 from discord.ext import commands
 
-from .subclassed_help import SubclassedHelp
-
 
 class StatBot(commands.Bot):
     def __init__(self, *args, **kwargs):
@@ -13,11 +11,7 @@ class StatBot(commands.Bot):
             *args,
             **kwargs,
             command_prefix=self.get_prefix,
-            help_command=commands.DefaultHelpCommand(
-                command_attrs={
-                    "cooldown": commands.Cooldown(2, 2.5, commands.BucketType.user)
-                }
-            ),
+            help_command=None,
         )
 
         self.PREFIX = "$"

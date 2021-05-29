@@ -23,7 +23,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 
 bot = StatBot(
     case_insensitive=True,

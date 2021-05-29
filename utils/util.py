@@ -6,5 +6,7 @@ class Pag(Paginator):
     async def teardown(self):
         try:
             await self.page.clear_reactions()
-        except discord.HTTPException:
-            pass
+        except discord.HTTPException as e:
+            raise e
+
+        await self._session_task.cancel()
