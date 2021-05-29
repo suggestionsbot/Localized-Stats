@@ -1,10 +1,12 @@
 import itertools
+import os
+from pathlib import Path
 from typing import List
 
 import discord
 from matplotlib import pyplot as plt
 
-from conversations import Conversation, Message, Helper
+from conversations import Conversation, Message, Helper, Plots
 from conversations.abc import DataStore
 
 
@@ -19,6 +21,8 @@ class Manager:
         self.current_conversation = {}
 
         self.helpers = None
+
+        self.cwd = str(Path(__file__).parents[0])
 
     async def _initialize(self):
         """
@@ -135,7 +139,7 @@ class Manager:
         plt.title("Time x Messages in #support")
         plt.show()
 
-    async def build_helper_thing(self, guild):
+    async def build_helper_convos_vs_convo_length_plot(self, guild) -> plt:
         helpers = await self.fetch_all_helpers()
 
         total_conversations = [helper.total_conversations for helper in helpers]
@@ -155,7 +159,8 @@ class Manager:
         plt.xlabel("Total Support Conversations")
         plt.ylabel("Average Messages Per Conversation")
         plt.title("Total Support Conversations x Average Messages Per Convo")
-        plt.show()
+
+        return plt
 
     async def fetch_all_helpers(self) -> List[Helper]:
         raw_helpers = await self.datastore.get_all_helpers()
@@ -192,3 +197,17 @@ class Manager:
     @classmethod
     def get_next_conversation_id(cls) -> int:
         return cls.conversation_identifier()
+
+    def save_plot(self, plot: plt, name: Plots):
+        """Saves a plot to disk"""
+        save_location = os.path.join(self.cwd, "generated_plots", name.value)
+        if os.path.isfile(save_location):
+            os.remove(save_location)
+
+        plot.savefig(save_location)
+
+    def get_plot_image(self, name: Plots) -> discord.File:
+        """Gets a plots image from disk and returns it for usage in discord"""
+        saved_location = os.path.join(self.cwd, "generated_plots", name.value)
+        file = discord.File(fp=saved_location, filename=name.value)
+        return file

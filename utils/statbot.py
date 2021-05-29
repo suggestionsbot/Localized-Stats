@@ -37,10 +37,38 @@ class StatBot(commands.Bot):
 
         await self.process_commands(message)
 
-    def clean_code(self, content):
+    @staticmethod
+    def clean_code(content):
         """Automatically removes code blocks from the code."""
-        # remove ```py\n```
         if content.startswith("```") and content.endswith("```"):
             return "\n".join(content.split("\n")[1:])[:-3]
         else:
             return content
+
+    async def send_attachment_in_embed(
+        self,
+        channel: discord.TextChannel,
+        embed: discord.Embed,
+        file: discord.File,
+        file_name: str = None,
+    ):
+        """
+        Since dpy is fucky with regard to image naming
+        and the ability to send attachments within embeds
+        this functions as an in-between to facilitate it.
+
+        Parameters
+        ----------
+        channel : discord.TextChannel
+            Where to send said embed with file
+        embed : discord.Embed
+            The embed to send
+        file : discord.File
+            The file we want embedded
+        file_name : str
+            An optional alphanumeric name to use as filename
+        """
+        file.filename = file_name
+        embed.set_image(url=f"attachment://{file_name}")
+
+        await channel.send(embed=embed, file=file)

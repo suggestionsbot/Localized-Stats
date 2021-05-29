@@ -9,7 +9,7 @@ from traceback import format_exception
 import discord
 from discord.ext import commands
 
-from conversations import Manager, Mongo, Helper
+from conversations import Manager, Mongo, Helper, Plots
 from utils import StatBot
 from utils.util import Pag
 
@@ -82,11 +82,26 @@ async def gen_scatter_timexmessages(ctx):
     await bot.manager.build_timed_scatter_plot()
 
 
-@bot.command()
+@bot.command(aliases=["bhcl", "helper_support_plot"])
 @commands.is_owner()
-async def get_helper(ctx):
+async def build_helper_convos_vs_convo_length_plot(ctx: discord.ext.commands.Context):
     """Builds a scatter plot of Time x Messages"""
-    await bot.manager.build_helper_thing(ctx.guild)
+    async with ctx.typing():
+        plot = await bot.manager.build_helper_convos_vs_convo_length_plot(ctx.guild)
+        bot.manager.save_plot(plot, Plots.HELPER_CONVOS_VS_CONVO_LENGTH)
+
+        file: discord.File = bot.manager.get_plot_image(
+            Plots.HELPER_CONVOS_VS_CONVO_LENGTH
+        )
+        embed = discord.Embed(
+            title="Support Team\nConversations vs Average Conversation Length",
+            timestamp=ctx.message.created_at,
+        )
+        embed.set_image(url=f"attachment://{Plots.HELPER_CONVOS_VS_CONVO_LENGTH.value}")
+
+        embed.set_footer(text="Valid as at")
+
+    await ctx.send(embed=embed, file=file)
 
 
 @bot.command(name="eval", aliases=["exec"])

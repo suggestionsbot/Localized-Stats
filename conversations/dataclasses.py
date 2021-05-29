@@ -1,4 +1,5 @@
 import datetime
+from enum import Enum
 from typing import List
 
 import attr
@@ -42,3 +43,7 @@ class Helper:
     total_messages: int = attr.ib(default=0, eq=False)
     total_conversations: int = attr.ib(default=0, eq=False)
     messages_per_conversation: List[int] = attr.ib(default=list, eq=False)
+
+
+class Plots(Enum):
+    HELPER_CONVOS_VS_CONVO_LENGTH = "helper_convos_vs_convo_length_plot.png"
