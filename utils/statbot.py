@@ -3,6 +3,7 @@ from typing import Union
 
 import discord
 from discord.ext import commands
+from discord.ext.commands import MinimalHelpCommand
 
 
 class StatBot(commands.Bot):
@@ -11,7 +12,7 @@ class StatBot(commands.Bot):
             *args,
             **kwargs,
             command_prefix=self.get_prefix,
-            help_command=None,
+            help_command=MinimalHelpCommand(),
         )
 
         self.PREFIX = "$"
