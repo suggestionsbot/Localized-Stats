@@ -12,6 +12,7 @@ class Message:
     content: str = attr.ib()
     guild_id: int = attr.ib()
     message_id: int = attr.ib()
+    timestamp: datetime.datetime = attr.ib()
 
     is_helper: bool = attr.ib(default=False, kw_only=True)
 
@@ -47,7 +48,25 @@ class Helper:
         default=attr.Factory(list), eq=False
     )
 
+    def get_average_messages_per_convo(self) -> int:
+        """
+        Returns the amount of messages this
+        helper sends per conversation on average
+        """
+        return round(
+            sum(self.messages_per_conversation) / len(self.messages_per_conversation)
+        )
+
+    def get_average_time_per_convo(self) -> int:
+        """
+        Returns the average amount of minutes
+        spent per support conversation
+        """
+        time_in_seconds = sum(self.conversation_length) / len(self.conversation_length)
+        return round(time_in_seconds / 60)
+
 
 class Plots(Enum):
     HELPER_CONVOS_VS_CONVO_LENGTH = "helper_convos_vs_convo_length_plot.png"
     HELPER_CONVO_TIME_VS_CONVO_LENGTH = "helper_convo_time_vs_convo_length_plot.png"
+    AVERAGE_SUPPORT_RESPONSE_TIME = "average_support_response_time.png"
