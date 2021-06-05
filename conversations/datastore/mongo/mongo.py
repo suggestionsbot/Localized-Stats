@@ -1,5 +1,5 @@
 import datetime
-from typing import List
+from typing import List, Union
 
 import attr
 import pymongo
@@ -67,8 +67,13 @@ class Mongo(DataStore):
 
         return helpers
 
-    async def fetch_helper(self, identifier: int) -> Helper:
-        pass
+    async def fetch_helper(self, identifier: int) -> Union[Helper, None]:
+        # try:
+        helper = await self.helpers.find_by_custom({"identifier": identifier})
+        helper.pop("_id")
+        return Helper(**helper)
+        # except:
+        #   return None
 
     async def store_helper(self, helper: Helper) -> None:
         as_dict = attr.asdict(helper)

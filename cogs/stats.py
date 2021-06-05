@@ -1,6 +1,7 @@
 import timeit
 
 import discord
+import humanize
 from discord.ext import commands
 
 from conversations import Helper, Plots
@@ -13,6 +14,28 @@ class Stats(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print(f"{self.__class__.__name__}: Ready")
+
+    @commands.command()
+    @commands.cooldown(1, 5)
+    async def stats(self, ctx, user: discord.User = None):
+        """Get the stats of a helper!"""
+        user = user or ctx.author
+        helper = await self.bot.manager.datastore.fetch_helper(user.id)
+        if not helper:
+            return await ctx.send("This user is not a registered helper.")
+
+        embed = discord.Embed(
+            title=f"Stats for `{user.display_name}`",
+            description=f"""Total Messages: `{humanize.intcomma(helper.total_messages)}`
+            Total Conversations: `{humanize.intcomma(helper.total_conversations)}`
+            Average Messages Per Convo: `{helper.get_average_messages_per_convo()}`
+            Average Time Per Convo: `{helper.get_average_time_per_convo()}` minutes
+            """,
+            timestamp=ctx.message.created_at,
+        )
+        embed.set_footer(text="Valid as at")
+
+        await ctx.send(embed=embed)
 
     @commands.command(aliases=["bps", "buildpaststats"])
     @commands.has_role(603803993562677258)
@@ -40,7 +63,7 @@ class Stats(commands.Cog):
         await ctx.send(f"Added `{member.display_name}` as a helper internally")
 
     @commands.command(aliases=["bhcl"])
-    # @commands.cooldown(1, 60)
+    @commands.cooldown(1, 60)
     @commands.is_owner()
     async def build_helper_convos_vs_convo_length_plot(
         self,
@@ -83,6 +106,31 @@ class Stats(commands.Cog):
             file: discord.File = self.bot.manager.get_plot_image(enum)
             embed = discord.Embed(
                 title="Support Team\nAverage Conversation Time vs Average Conversation Length",
+                timestamp=ctx.message.created_at,
+            )
+            embed.set_footer(text="Valid as at")
+
+        await self.bot.send_attachment_in_embed(
+            ctx,
+            embed,
+            file,
+            file_name=enum.value.lower(),
+        )
+
+    @commands.command(aliases=["bhrt"])
+    @commands.cooldown(1, 60)
+    @commands.is_owner()
+    async def build_average_support_response_time(self, ctx):
+        """Builds a histogram plotting average support response time"""
+        async with ctx.typing():
+            plot = await self.bot.manager.build_average_support_response_time()
+            enum = Plots.AVERAGE_SUPPORT_RESPONSE_TIME
+            self.bot.manager.save_plot(plot, enum)
+
+            file: discord.File = self.bot.manager.get_plot_image(enum)
+            embed = discord.Embed(
+                title="Average Support Response Time",
+                description="Values over 100 minutes are considered to be outliers and discarded.",
                 timestamp=ctx.message.created_at,
             )
             embed.set_footer(text="Valid as at")

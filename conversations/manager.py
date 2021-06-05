@@ -5,7 +5,11 @@ from pathlib import Path
 from typing import List
 
 import discord
-from matplotlib import pyplot as plt
+import numpy as np
+import seaborn as sns
+from scipy.stats import gaussian_kde
+from scipy.interpolate import make_interp_spline, BSpline
+from matplotlib import pyplot as plt, ticker
 
 from conversations import Conversation, Message, Helper, Plots
 from conversations.abc import DataStore
@@ -113,6 +117,7 @@ class Manager:
                     message.content,
                     message.guild.id,
                     message.id,
+                    message.created_at,
                     is_helper=True if message.author.id in self.helper_ids else False,
                 )
             )
@@ -212,6 +217,35 @@ class Manager:
                     average_help_times[i],
                 ),
             )
+
+        return plt
+
+    async def build_average_support_response_time(self) -> plt:
+        """
+        Builds and returns a plot showing the average
+        support response time
+        """
+        plt.clf()
+        conversations = await self.fetch_all_conversations()
+        response_times = []
+        for conversation in conversations:
+            for message in conversation.messages:
+                if message.is_helper:
+                    offset = message.timestamp - conversation.start_time
+                    time = offset.total_seconds() / 60  # Minutes
+                    if time > 100:
+                        # Fuck the outliers
+                        continue
+                    response_times.append(time)
+
+        sns.set_style("whitegrid")
+        ax = sns.histplot(data=response_times, bins=200)
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(10))
+        ax.yaxis.set_major_locator(ticker.MultipleLocator(150))
+
+        plt.xlabel("Average support response time (Minutes)")
+        plt.ylabel("Conversations")
+        plt.title("Average time taken to respond to support queries")
 
         return plt
 
