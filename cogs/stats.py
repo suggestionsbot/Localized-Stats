@@ -130,7 +130,7 @@ class Stats(commands.Cog):
             file: discord.File = self.bot.manager.get_plot_image(enum)
             embed = discord.Embed(
                 title="Average Support Response Time",
-                description="Values over 100 minutes are considered to be outliers and discarded.",
+                description="Values over 100 minutes are considered to be outliers and are discarded.",
                 timestamp=ctx.message.created_at,
             )
             embed.set_footer(text="Valid as at")
