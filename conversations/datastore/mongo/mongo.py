@@ -1,3 +1,4 @@
+import datetime
 from typing import List
 
 import attr
@@ -47,12 +48,20 @@ class Mongo(DataStore):
         raw_helpers = await self.helpers.get_all()
         helpers = []
         for helper in raw_helpers:
+            try:
+                timestamps = [
+                    datetime.timedelta(seconds=seconds)
+                    for seconds in helper["conversation_length"]
+                ]
+            except KeyError:
+                timestamps = []
             helpers.append(
                 Helper(
                     helper["identifier"],
                     helper["total_messages"],
                     helper["total_conversations"],
                     helper["messages_per_conversation"],
+                    timestamps,
                 )
             )
 
@@ -64,6 +73,9 @@ class Mongo(DataStore):
     async def store_helper(self, helper: Helper) -> None:
         as_dict = attr.asdict(helper)
         as_dict.pop("identifier")
+        as_dict["conversation_length"] = [
+            item.total_seconds() for item in as_dict["conversation_length"]
+        ]
 
         filter_dict = {"identifier": helper.identifier}
         await self.helpers.upsert(filter_dict, as_dict)

@@ -77,6 +77,9 @@ class Manager:
             ):
                 # Start a new conversation
                 for helper_id, msg_count in current_helpers.items():
+                    self.helpers[helper_id].conversation_length.append(
+                        conversation.end_time - conversation.start_time
+                    )
                     self.helpers[helper_id].messages_per_conversation.append(msg_count)
                     self.helpers[helper_id].total_conversations += 1
 
@@ -141,8 +144,13 @@ class Manager:
         plt.show()
 
     async def build_helper_convos_vs_convo_length_plot(self, guild) -> plt:
-        helpers = await self.fetch_all_helpers()
+        """
+        Builds a plot of 'helpers' vs the average
+        length of there conversations
 
+        """
+        plt.clf()
+        helpers = await self.fetch_all_helpers()
         total_conversations = [helper.total_conversations for helper in helpers]
 
         avg_messages = [helper.messages_per_conversation for helper in helpers]
@@ -153,13 +161,57 @@ class Manager:
 
         plt.plot(total_conversations, y, "o", color="black")
 
+        move_amount = self.get_one_point_five_percent(max(total_conversations))
         for i in range(len(total_conversations)):
             user = await guild.fetch_member(helpers[i].identifier)
-            plt.annotate(user.display_name, ((total_conversations[i] + 50), y[i]))
+            offset = total_conversations[i] + move_amount
+            plt.annotate(
+                user.display_name,
+                (
+                    offset,
+                    y[i],
+                ),
+            )
 
         plt.xlabel("Total Support Conversations")
         plt.ylabel("Average Messages Per Conversation")
         plt.title("Total Support Conversations x Average Messages Per Convo")
+
+        return plt
+
+    async def build_helper_convo_time_vs_total_convo_plot(self, guild) -> plt:
+        """
+        Builds and returns a plot for the
+        average conversation time of a helper
+        plotted against total conversations
+        """
+        plt.clf()
+        helpers = await self.fetch_all_helpers()
+        total_conversations = [helper.total_conversations for helper in helpers]
+        average_help_times_raw = [helper.conversation_length for helper in helpers]
+
+        average_help_times = []
+        for x in average_help_times_raw:
+            time_in_seconds = sum(x) / len(x)
+            time_in_minutes = round(time_in_seconds / 60)
+            average_help_times.append(time_in_minutes)
+
+        plt.plot(total_conversations, average_help_times, "o", color="black")
+        plt.ylabel("Average conversation length (Minutes)")
+        plt.xlabel("Average Messages Per Conversation")
+        plt.title("Total Support Conversations x Average convo length")
+
+        move_amount = self.get_one_point_five_percent(max(total_conversations))
+        for i in range(len(total_conversations)):
+            user = await guild.fetch_member(helpers[i].identifier)
+            offset = total_conversations[i] + move_amount
+            plt.annotate(
+                user.display_name,
+                (
+                    offset,
+                    average_help_times[i],
+                ),
+            )
 
         return plt
 
@@ -198,6 +250,15 @@ class Manager:
     @classmethod
     def get_next_conversation_id(cls) -> int:
         return cls.conversation_identifier()
+
+    @staticmethod
+    def get_one_point_five_percent(total) -> int:
+        """
+        A simple helper method to get 5 percent
+        of a given number.
+        Is useful for plots
+        """
+        return round(total * 0.015, 2)
 
     def save_plot(self, plot: plt, name: Plots):
         """Saves a plot to disk"""

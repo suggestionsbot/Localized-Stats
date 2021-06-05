@@ -42,8 +42,12 @@ class Helper:
     identifier: int = attr.ib(eq=True)
     total_messages: int = attr.ib(default=0, eq=False)
     total_conversations: int = attr.ib(default=0, eq=False)
-    messages_per_conversation: List[int] = attr.ib(default=list, eq=False)
+    messages_per_conversation: List[int] = attr.ib(default=attr.Factory(list), eq=False)
+    conversation_length: List[datetime.timedelta] = attr.ib(
+        default=attr.Factory(list), eq=False
+    )
 
 
 class Plots(Enum):
     HELPER_CONVOS_VS_CONVO_LENGTH = "helper_convos_vs_convo_length_plot.png"
+    HELPER_CONVO_TIME_VS_CONVO_LENGTH = "helper_convo_time_vs_convo_length_plot.png"
