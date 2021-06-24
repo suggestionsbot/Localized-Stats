@@ -5,7 +5,7 @@ from typing import List
 import attr
 
 
-@attr.s(slots=True)
+@attr.s(slots=True, frozen=True)
 class Message:
     author_id: int = attr.ib()
     channel_id: int = attr.ib()

@@ -88,8 +88,25 @@ class Mongo(DataStore):
     async def remove_helper(self, identifier: int) -> None:
         pass
 
-    async def get_all_conversations(self) -> List[dict]:
-        return await self.conversations.get_all()
+    async def fetch_all_conversations(self) -> List[Conversation]:
+        values = await self.conversations.get_all()
+        conversations = []
+        for convo in values:
+            messages = []
+            for message in convo["messages"]:
+                messages.append(Message(**message))
 
-    async def get_all_helpers(self) -> List[dict]:
-        return await self.helpers.get_all()
+            convo["messages"] = messages
+
+            conversations.append(Conversation(**convo))
+
+        return conversations
+
+    async def fetch_all_helpers(self) -> List[Helper]:
+        values = await self.helpers.get_all()
+        helpers = []
+        for helper in values:
+            helper.pop("_id")
+            helpers.append(Helper(**helper))
+
+        return helpers

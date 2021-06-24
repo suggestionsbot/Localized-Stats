@@ -142,6 +142,13 @@ class Stats(commands.Cog):
             file_name=enum.value.lower(),
         )
 
+    @commands.command(aliases=["ms"])
+    @commands.is_owner()
+    async def message_stats(self, ctx):
+        """Shows stats for all messages"""
+        embed = await self.bot.manager.get_message_stats()
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Stats(bot))

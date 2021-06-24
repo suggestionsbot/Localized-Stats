@@ -2,17 +2,15 @@ import datetime
 import itertools
 import os
 from pathlib import Path
-from typing import List
 
+import aiosqlite
 import discord
-import numpy as np
 import seaborn as sns
-from scipy.stats import gaussian_kde
-from scipy.interpolate import make_interp_spline, BSpline
 from matplotlib import pyplot as plt, ticker
 
 from conversations import Conversation, Message, Helper, Plots
 from conversations.abc import DataStore
+from conversations.datastore import Sqlite
 
 
 class Manager:
@@ -135,7 +133,7 @@ class Manager:
         return finished
 
     async def build_timed_scatter_plot(self):
-        conversations = await self.fetch_all_conversations()
+        conversations = await self.datastore.fetch_all_conversations()
         messages = [len(convo.messages) for convo in conversations]
         time = [
             ((convo.end_time - convo.start_time).total_seconds() / 60)
@@ -155,7 +153,7 @@ class Manager:
 
         """
         plt.clf()
-        helpers = await self.fetch_all_helpers()
+        helpers = await self.datastore.fetch_all_helpers()
         total_conversations = [helper.total_conversations for helper in helpers]
 
         avg_messages = [helper.messages_per_conversation for helper in helpers]
@@ -191,7 +189,7 @@ class Manager:
         plotted against total conversations
         """
         plt.clf()
-        helpers = await self.fetch_all_helpers()
+        helpers = await self.datastore.fetch_all_helpers()
         total_conversations = [helper.total_conversations for helper in helpers]
         average_help_times_raw = [helper.conversation_length for helper in helpers]
 
@@ -226,7 +224,7 @@ class Manager:
         support response time
         """
         plt.clf()
-        conversations = await self.fetch_all_conversations()
+        conversations = await self.datastore.fetch_all_conversations()
         response_times = []
         for conversation in conversations:
             for message in conversation.messages:
@@ -249,37 +247,55 @@ class Manager:
 
         return plt
 
-    async def fetch_all_helpers(self) -> List[Helper]:
-        raw_helpers = await self.datastore.get_all_helpers()
-        helpers = []
-        for helper in raw_helpers:
-            helper.pop("_id")
-            helpers.append(Helper(**helper))
+    async def get_message_stats(self) -> discord.Embed:
+        if not isinstance(self.datastore, Sqlite):
+            # can't call this on anything but sqlite datastore
+            raise NotImplementedError
 
-        return helpers
+        # To run the sqlite decorator
+        await self.datastore.fetch_current_conversation_count()
 
-    async def fetch_all_conversations(self) -> List[Conversation]:
-        """
-        Fetchs all conversations and builds the
-        relevant dataclasses before returning em
+        messages = []
+        async with aiosqlite.connect(self.datastore.db) as db:
+            async with db.execute(
+                "SELECT "
+                "   author_id, channel_id, content,"
+                "   guild_id, message_id, datetime(timestamp), is_helper "
+                "FROM Message "
+            ) as messages_cursor:
+                all_msgs = await messages_cursor.fetchall()
+                for val in all_msgs:
+                    messages.append(
+                        Message(
+                            author_id=val[0],
+                            channel_id=val[1],
+                            content=val[2],
+                            guild_id=val[3],
+                            message_id=val[4],
+                            timestamp=val[5],
+                            is_helper=val[6],
+                        )
+                    )
 
-        Returns
-        -------
-        List[Conversation]
-            It says it all
-        """
-        conversations = []
-        raw_convos = await self.datastore.get_all_conversations()
-        for convo in raw_convos:
-            convo.pop("_id")
-            messages = []
-            for message in convo["messages"]:
-                messages.append(Message(**message))
+        messages = set(messages)
+        unique_authors = set(msg.author_id for msg in messages)
+        total_authors = len(unique_authors)
+        total_messages = len(messages)
+        total_helper_messages = len([x for x in messages if x.is_helper])
 
-            convo["messages"] = messages
-            conversations.append(Conversation(**convo))
+        embed = discord.Embed(
+            title="Message Stats",
+            description=f"""
+            Total authors: `{total_authors}`
+            Total messages: `{total_messages}`
+            
+            Total helper messages: `{total_helper_messages}`
+            Total helpee messages: `{total_messages - total_helper_messages}`
+            """,
+        )
+        # TODO humanize this
 
-        return conversations
+        return embed
 
     @classmethod
     def get_next_conversation_id(cls) -> int:

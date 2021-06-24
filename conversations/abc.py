@@ -1,4 +1,4 @@
-from typing import Protocol, List
+from typing import Protocol, List, Union
 
 from conversations import Conversation, Helper
 
@@ -101,7 +101,7 @@ class DataStore(Protocol):
         """
         raise NotImplementedError
 
-    async def get_all_conversations(self) -> List[dict]:
+    async def fetch_all_conversations(self) -> List[Conversation]:
         """
         Returns a list of all possible conversations yea idk
 
@@ -113,7 +113,7 @@ class DataStore(Protocol):
         """
         raise NotImplementedError
 
-    async def get_all_helpers(self) -> List[dict]:
+    async def fetch_all_helpers(self) -> List[Helper]:
         """
         Returns a list of all helpers to make dataclasses for
 
@@ -121,5 +121,11 @@ class DataStore(Protocol):
         -------
         List[dict]
             A list of helpers
+        """
+        raise NotImplementedError
+
+    async def create_indexes(self) -> None:
+        """
+        Creates indexes in the database to support faster queries
         """
         raise NotImplementedError

@@ -9,6 +9,7 @@ import discord
 from discord.ext import commands
 
 from conversations import Manager, Mongo, Helper, Plots
+from conversations.datastore import Sqlite
 from utils import StatBot
 from utils.util import Pag
 
@@ -31,7 +32,8 @@ bot = StatBot(
     activity=discord.Game(name="Playing with statistics"),
 )
 
-bot.datastore = Mongo(MONGO_URL)
+# bot.datastore = Mongo(MONGO_URL)
+bot.datastore = Sqlite()
 bot.manager = Manager(bot.datastore)
 
 
@@ -48,6 +50,17 @@ async def logout(ctx):
 async def create_indexes(ctx):
     """Creates database indexes"""
     await bot.datastore.create_indexes()
+
+
+@bot.command(aliases=["gh"])
+@commands.is_owner()
+async def get_helpers(ctx):
+    mongo = Mongo(MONGO_URL)
+    x = await mongo.fetch_helpers()
+    helpers = [x.identifier for x in x]
+    for h in helpers:
+        await bot.datastore.store_helper(Helper(identifier=h))
+    await ctx.send(helpers)
 
 
 @bot.command()

@@ -5,3 +5,7 @@ pip-chill==1.0.1
 
 attrs~=21.2.0
 matplotlib~=3.4.2
+humanize~=3.7.0
+pymongo~=3.11.4
+aiosqlite~=0.17.0
+seaborn~=0.11.1
