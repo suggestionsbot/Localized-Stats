@@ -14,6 +14,7 @@ from conversations.datastore import Sqlite
 
 
 class Manager:
+    # TODO Let boosters see there own stats
     conversation_identifier = itertools.count().__next__
 
     def __init__(self, datastore: DataStore):

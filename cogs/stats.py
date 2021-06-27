@@ -1,3 +1,5 @@
+import cProfile
+import pstats
 import timeit
 
 import discord
@@ -43,7 +45,12 @@ class Stats(commands.Cog):
         """Builds stats for the given channel using all of the currently stored messages"""
         start_time = timeit.default_timer()
         async with ctx.typing():
-            convos = await self.bot.manager.build_past_conversations(channel)
+            with cProfile.Profile() as pr:
+                convos = await self.bot.manager.build_past_conversations(channel)
+
+            stats = pstats.Stats(pr)
+            stats.sort_stats(pstats.SortKey.TIME)
+            stats.dump_stats(filename="profile.prof")
 
         total_messages = 0
         for convo in convos:

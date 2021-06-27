@@ -118,15 +118,8 @@ class Sqlite(DataStore):
                 helpers = []
                 helpers_raw = await cursor.fetchall()
                 for val in helpers_raw:
-                    try:
-                        per_convo_messages = val[3]
-                    except IndexError:
-                        per_convo_messages = []
-
-                    try:
-                        convos = [timedelta(seconds=s) for s in val[4]]
-                    except IndexError:
-                        convos = []
+                    per_convo_messages = [item[3] for item in val]
+                    convos = [timedelta(seconds=s[4]) for s in val]
 
                     helpers.append(
                         Helper(
@@ -153,22 +146,33 @@ class Sqlite(DataStore):
                 "LEFT JOIN Helper_convo_length Hcl "
                 "   ON H.identifier = Hcl.helper_id "
                 "WHERE "
-                "   H.identifier=:identifier "
+                "   H.identifier=:identifier ",
+                {"identifier": identifier}
+                # TODO Add args here
             ) as cursor:
                 val = await cursor.fetchone()
+                x = await cursor.fetchall()
+
+                per_convo_messages = [item[3] for item in x]
+                convos = [timedelta(seconds=s[4]) for s in x]
+
+                """
                 try:
                     per_convo_messages = val[3]
                 except IndexError:
                     per_convo_messages = []
                 try:
+                    print(val[4])
                     convos = [timedelta(seconds=s) for s in val[4]]
                 except IndexError:
                     convos = []
+                """
+
                 return Helper(
                     identifier=val[0],
                     total_messages=val[1],
                     total_conversations=val[2],
-                    messages_per_conversation=per_convo_messages,  # Check these are lists
+                    messages_per_conversation=per_convo_messages,
                     conversation_length=convos,
                 )
 
@@ -253,21 +257,23 @@ class Sqlite(DataStore):
                 "   H.identifier, H.total_messages, "
                 "   H.total_conversations, Hmp.amount, Hcl.time "
                 "FROM Helper H "
-                "INNER JOIN Helper_messages_per Hmp"
+                "LEFT JOIN Helper_messages_per Hmp"
                 "   ON Hmp.helper_id = H.identifier "
-                "INNER JOIN Helper_convo_length Hcl "
+                "LEFT JOIN Helper_convo_length Hcl "
                 "   ON H.identifier = Hcl.helper_id "
             ) as cursor:
                 helpers = []
                 helpers_raw = await cursor.fetchall()
                 for val in helpers_raw:
+                    per_convo_messages = [item[3] for item in val]
+                    convos = [timedelta(seconds=s[4]) for s in val]
                     helpers.append(
                         Helper(
                             identifier=val[0],
                             total_messages=val[1],
                             total_conversations=val[2],
-                            messages_per_conversation=val[3],
-                            conversation_length=val[4],
+                            messages_per_conversation=per_convo_messages,
+                            conversation_length=convos,
                         )
                     )
         return helpers
