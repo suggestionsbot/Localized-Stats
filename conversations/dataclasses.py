@@ -62,10 +62,8 @@ class Helper:
         Returns the average amount of minutes
         spent per support conversation
         """
-        time_in_seconds = sum(self.conversation_length, datetime.timedelta(0)) / len(
-            self.conversation_length
-        )
-        return round(time_in_seconds.total_seconds() / 60)
+        time_in_seconds = sum(self.conversation_length) / len(self.conversation_length)
+        return round(time_in_seconds / 60)
 
 
 class Plots(Enum):
