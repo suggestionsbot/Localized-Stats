@@ -250,6 +250,7 @@ class Manager:
 
     async def get_message_stats(self) -> discord.Embed:
         if not isinstance(self.datastore, Sqlite):
+            # TODO Get this to work with API
             # can't call this on anything but sqlite datastore
             raise NotImplementedError
 
