@@ -69,19 +69,36 @@ class Help(commands.Cog, name="Help command"):
         for i in range(0, len(filtered_commands), self.cmds_per_page):
 
             next_commands = filtered_commands[i : i + self.cmds_per_page]
+            next_commands = sorted(
+                next_commands, key=lambda c: self.get_command_signature(c, ctx)
+            )
             command_entry = ""
 
             for cmd in next_commands:
 
                 desc = cmd.short_doc or cmd.description
                 signature = self.get_command_signature(cmd, ctx)
-                subcommand = "Has subcommands" if hasattr(cmd, "all_commands") else ""
+                extra = [
+                    "Has subcommands" if hasattr(cmd, "all_commands") else None,
+                    "Marked as hidden" if cmd.hidden else None,
+                ]
+                extra = list(filter(lambda x: x is not None, extra))
 
-                command_entry += (
-                    f"• **__{cmd.name}__**\n```\n{signature}\n```\n{desc}\n"
-                    if isinstance(entity, commands.Command)
-                    else f"• **__{cmd.name}__**\n{desc}\n    {subcommand}\n"
-                )
+                if isinstance(entity, commands.Command):
+                    entry = f"• **__{cmd.name}__**\n"
+                    if signature:
+                        entry += f"```\n{signature}\n```\n "
+                    if desc:
+                        entry += f"{desc}\n"
+
+                else:
+                    entry = f"• **__{cmd.name}__**\n"
+                    if desc:
+                        entry += f"{desc}\n"
+                    if extra:
+                        entry += f"    {' | '.join(extra)}\n"
+
+                command_entry += entry
 
             pages.append(command_entry)
 
