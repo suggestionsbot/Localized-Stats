@@ -67,9 +67,17 @@ class DevOps(commands.Cog):
 
             pages.append(message)
 
-        await Pag(
-            title="Command Usage Statistics!", color=0xC9B4F4, entries=pages, length=1
-        ).start(ctx)
+        if len(pages) == 1:
+            await ctx.send(
+                embed=discord.Embed(title="Command Usage Statistics!", color=0xC9B4F4)
+            )
+        else:
+            await Pag(
+                title="Command Usage Statistics!",
+                color=0xC9B4F4,
+                entries=pages,
+                length=1,
+            ).start(ctx)
 
 
 def setup(bot):

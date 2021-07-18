@@ -125,7 +125,7 @@ class Help(commands.Cog, name="Help command"):
         """
 
         if not entity:
-            await self.setup_help_pag(ctx)
+            await self.setup_help_pag(ctx, title=f"{self.bot.user.name}'s commands")
 
         else:
             cog = self.bot.get_cog(entity)
