@@ -76,6 +76,9 @@ class Help(commands.Cog, name="Help command"):
                 desc = cmd.short_doc or cmd.description
                 signature = self.get_command_signature(cmd, ctx)
                 extra = [
+                    "Has parent command"
+                    if getattr(cmd, "parent", False) is True
+                    else None,
                     "Has subcommands" if hasattr(cmd, "all_commands") else None,
                     "Marked as hidden" if cmd.hidden else None,
                 ]
