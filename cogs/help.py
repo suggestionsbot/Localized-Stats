@@ -27,9 +27,9 @@ class Help(commands.Cog, name="Help command"):
                     # command is hidden
                     continue
 
-                elif c.parent:
-                    # Command is a subcommand
-                    continue
+                # elif c.parent:
+                #    # Command is a subcommand
+                #    continue
 
                 await c.can_run(ctx)
                 filtered.append(c)
@@ -40,7 +40,7 @@ class Help(commands.Cog, name="Help command"):
 
     @staticmethod
     def return_sorted_commands(commandList):
-        return sorted(commandList, key=lambda x: x.name)
+        return sorted(commandList, key=lambda x: x.qualified_name)
 
     async def setup_help_pag(self, ctx, entity=None, title=None):
         entity = entity or self.bot
@@ -83,16 +83,14 @@ class Help(commands.Cog, name="Help command"):
                 aliases = "|".join(cmd.aliases)
 
                 if isinstance(entity, commands.Command):
-                    entry = f"• **__{cmd.name}__**\n"
-                    if signature:
-                        entry += f"```\n{signature}\n```\n "
+                    entry = f"• **__{cmd.name}__**\n```\n{signature}\n```\n"
                     if desc:
                         entry += f"{desc}\n"
 
                 else:
-                    entry = f"• **__{cmd.name}__**"
+                    entry = f"• **{cmd.qualified_name}**"
                     if aliases:
-                        entry += f" - `{aliases}`"
+                        entry += f" -`{aliases}`"
                     entry += "\n"
 
                     if desc:
