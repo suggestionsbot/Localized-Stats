@@ -38,7 +38,7 @@ class Helper(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name="add")
+    @helper.command()
     @commands.has_role(603803993562677258)
     async def add(self, ctx, member: discord.Member):
         """Registers a helper internally"""
