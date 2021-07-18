@@ -12,7 +12,7 @@ class Plot(commands.Cog):
     async def on_ready(self):
         print(f"{self.__class__.__name__}: Ready")
 
-    @commands.group()
+    @commands.group(invoke_without_command=True)
     async def plot(self, ctx):
         """The entry point for all plot commands"""
         await ctx.invoke(self.bot.get_command("help"), entity="plot")

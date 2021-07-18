@@ -97,6 +97,7 @@ class Mongo(DataStore):
                 messages.append(Message(**message))
 
             convo["messages"] = messages
+            convo.pop("_id")
 
             conversations.append(Conversation(**convo))
 
