@@ -69,9 +69,6 @@ class Help(commands.Cog, name="Help command"):
         for i in range(0, len(filtered_commands), self.cmds_per_page):
 
             next_commands = filtered_commands[i : i + self.cmds_per_page]
-            next_commands = sorted(
-                next_commands, key=lambda c: self.get_command_signature(c, ctx)
-            )
             command_entry = ""
 
             for cmd in next_commands:
@@ -97,6 +94,8 @@ class Help(commands.Cog, name="Help command"):
                         entry += f"{desc}\n"
                     if extra:
                         entry += f"    {' | '.join(extra)}\n"
+
+                entry += "\n"
 
                 command_entry += entry
 
