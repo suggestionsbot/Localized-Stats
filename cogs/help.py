@@ -80,6 +80,7 @@ class Help(commands.Cog, name="Help command"):
                     "Marked as hidden" if cmd.hidden else None,
                 ]
                 extra = list(filter(lambda x: x is not None, extra))
+                aliases = "|".join(cmd.aliases)
 
                 if isinstance(entity, commands.Command):
                     entry = f"• **__{cmd.name}__**\n"
@@ -89,7 +90,11 @@ class Help(commands.Cog, name="Help command"):
                         entry += f"{desc}\n"
 
                 else:
-                    entry = f"• **__{cmd.name}__**\n"
+                    entry = f"• **__{cmd.name}__**"
+                    if aliases:
+                        entry += f" - `{aliases}`"
+                    entry += "\n"
+
                     if desc:
                         entry += f"{desc}\n"
                     if extra:
