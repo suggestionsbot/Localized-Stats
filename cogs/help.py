@@ -89,9 +89,7 @@ class Help(commands.Cog, name="Help command"):
     async def on_ready(self):
         print(f"{self.__class__.__name__}: Ready")
 
-    @commands.command(
-        name="help", aliases=["h", "commands"], description="The help command!"
-    )
+    @commands.command(name="help", aliases=["commands"])
     async def help_command(self, ctx, *, entity=None):
         """
         Sends a paginated help command or help for an existing entity.

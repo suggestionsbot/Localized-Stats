@@ -2,8 +2,11 @@ import re
 from typing import Union
 
 import discord
+import motor.motor_asyncio
 from discord.ext import commands
 from discord.ext.commands import MinimalHelpCommand
+
+from utils import Document
 
 
 class StatBot(commands.Bot):
@@ -17,6 +20,12 @@ class StatBot(commands.Bot):
 
         self.PREFIX = "$"
         self.mention = re.compile(r"^<@!?(?P<id>\d+)>$")
+
+        self.mongo = motor.motor_asyncio.AsyncIOMotorClient(
+            str(kwargs.pop("MONGO_URL"))
+        )
+        self.db = self.mongo["localized_stats"]
+        self.command_usage = Document(self.db, "command_usage")
 
     async def get_prefix(self, message):
         prefix = self.PREFIX
@@ -43,6 +52,19 @@ class StatBot(commands.Bot):
                 )
 
         await self.process_commands(message)
+
+    async def on_command_completion(self, ctx):
+        if ctx.command.qualified_name == "logout":
+            return
+
+        if await self.command_usage.find(ctx.command.qualified_name) is None:
+            await self.command_usage.upsert(
+                {"_id": ctx.command.qualified_name, "usage_count": 1}
+            )
+        else:
+            await self.command_usage.increment(
+                ctx.command.qualified_name, 1, "usage_count"
+            )
 
     @staticmethod
     def clean_code(content):

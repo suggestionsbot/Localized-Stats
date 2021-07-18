@@ -11,9 +11,10 @@ class Helper(commands.Cog):
     async def on_ready(self):
         print(f"{self.__class__.__name__}: Ready")
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, aliases=["h"])
     @commands.cooldown(1, 1, commands.BucketType)
     async def helper(self, ctx):
+        """The entry point for all helper commands."""
         await ctx.invoke(self.bot.get_command("help"), entity="helper")
 
     @helper.command(name="stats")
@@ -37,6 +38,13 @@ class Helper(commands.Cog):
         embed.set_footer(text="Valid as at")
 
         await ctx.send(embed=embed)
+
+    @commands.command(name="add")
+    @commands.has_role(603803993562677258)
+    async def add(self, ctx, member: discord.Member):
+        """Registers a helper internally"""
+        await self.bot.datastore.store_helper(Helper(member.id))
+        await ctx.send(f"Added `{member.display_name}` as a helper internally")
 
 
 def setup(bot):

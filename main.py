@@ -30,6 +30,7 @@ bot = StatBot(
     case_insensitive=True,
     intents=intents,
     activity=discord.Game(name="Playing with statistics"),
+    mongo=MONGO_URL,
 )
 
 bot.datastore = Mongo(MONGO_URL)
