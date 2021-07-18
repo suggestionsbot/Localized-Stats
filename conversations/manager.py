@@ -2,6 +2,7 @@ import datetime
 import itertools
 import os
 from pathlib import Path
+from typing import List
 
 import aiosqlite
 import discord
@@ -28,11 +29,16 @@ class Manager:
 
         self.cwd = str(Path(__file__).parents[0])
 
+        self.has_init = False
+
     async def _initialize(self):
         """
         An internal async method for ensuring
         things are setup before usage
         """
+        if self.has_init:
+            return
+
         if not self.helpers:
             helpers = await self.datastore.fetch_helpers()
 
@@ -49,6 +55,10 @@ class Manager:
             self.conversation_identifier = itertools.count(
                 start=current_conversation_id
             ).__next__
+
+        Path(os.path.join(self.cwd, "generated_plots", "old")).mkdir(
+            parents=True, exist_ok=True
+        )
 
     async def build_past_conversations(self, channel: discord.TextChannel):
         """
@@ -134,7 +144,9 @@ class Manager:
         return finished
 
     async def build_timed_scatter_plot(self):
-        conversations = await self.datastore.fetch_all_conversations()
+        conversations: List[
+            Conversation
+        ] = await self.datastore.fetch_all_conversations()  # noqa
         messages = [len(convo.messages) for convo in conversations]
         time = [
             ((convo.end_time - convo.start_time).total_seconds() / 60)
@@ -154,7 +166,7 @@ class Manager:
 
         """
         plt.clf()
-        helpers = await self.datastore.fetch_all_helpers()
+        helpers: List[Helper] = await self.datastore.fetch_all_helpers()  # noqa
         total_conversations = [helper.total_conversations for helper in helpers]
 
         avg_messages = [helper.messages_per_conversation for helper in helpers]
@@ -190,7 +202,7 @@ class Manager:
         plotted against total conversations
         """
         plt.clf()
-        helpers = await self.datastore.fetch_all_helpers()
+        helpers: List[Helper] = await self.datastore.fetch_all_helpers()  # noqa
         total_conversations = [helper.total_conversations for helper in helpers]
         average_help_times_raw = [helper.conversation_length for helper in helpers]
 
