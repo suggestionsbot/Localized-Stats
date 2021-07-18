@@ -341,8 +341,9 @@ class Manager:
     def _preserve_plot(self, old_plot_dir: str, dir_name: str):
         """Preserves an old plot by moving it to a save directory"""
         to_save_dir = os.path.join(self.cwd, "generated_plots", "old", dir_name.lower())
-        if not os.path.isdir(to_save_dir):
-            os.mkdir(to_save_dir)
+        Path(os.path.join(self.cwd, "generated_plots", "old", dir_name.lower())).mkdir(
+            parents=True, exist_ok=True
+        )
 
         timestamp = datetime.datetime.now()
         new_file_name = f"replaced_at_{timestamp.strftime('%f_%S_%M_%H_%d_%m_%Y')}.png"
