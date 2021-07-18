@@ -6,7 +6,7 @@ from utils.util import Pag
 class Help(commands.Cog, name="Help command"):
     def __init__(self, bot):
         self.bot = bot
-        self.cmds_per_page = 6
+        self.cmds_per_page = 10
 
     @staticmethod
     def get_command_signature(command: commands.Command, ctx: commands.Context):
@@ -18,12 +18,12 @@ class Help(commands.Cog, name="Help command"):
         signature = f"{ctx.prefix}{full_invoke}{cmd_invoke} {command.signature}"
         return signature
 
-    async def return_filtered_commands(self, walkable, ctx):
+    async def return_filtered_commands(self, walkable, ctx, hide_hidden=True):
         filtered = []
 
         for c in walkable.walk_commands():
             try:
-                if c.hidden:
+                if hide_hidden and c.hidden:
                     # command is hidden
                     continue
 
@@ -57,7 +57,14 @@ class Help(commands.Cog, name="Help command"):
             filtered_commands.insert(0, entity)
 
         else:
-            filtered_commands = await self.return_filtered_commands(entity, ctx)
+            hide_hidden = (
+                True
+                if ctx.author.id not in (271612318947868673, 158063324699951104)
+                else False
+            )
+            filtered_commands = await self.return_filtered_commands(
+                entity, ctx, hide_hidden
+            )
 
         for i in range(0, len(filtered_commands), self.cmds_per_page):
 

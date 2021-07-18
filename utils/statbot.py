@@ -6,7 +6,7 @@ import motor.motor_asyncio
 from discord.ext import commands
 from discord.ext.commands import MinimalHelpCommand
 
-from utils import Document
+from .mongo import Document
 
 
 class StatBot(commands.Bot):
@@ -21,9 +21,7 @@ class StatBot(commands.Bot):
         self.PREFIX = "$"
         self.mention = re.compile(r"^<@!?(?P<id>\d+)>$")
 
-        self.mongo = motor.motor_asyncio.AsyncIOMotorClient(
-            str(kwargs.pop("MONGO_URL"))
-        )
+        self.mongo = motor.motor_asyncio.AsyncIOMotorClient(str(kwargs.pop("mongo")))
         self.db = self.mongo["localized_stats"]
         self.command_usage = Document(self.db, "command_usage")
 
