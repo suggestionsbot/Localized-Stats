@@ -12,7 +12,7 @@ class StatBot(commands.Bot):
             *args,
             **kwargs,
             command_prefix=self.get_prefix,
-            help_command=MinimalHelpCommand(),
+            help_command=None,
         )
 
         self.PREFIX = "$"

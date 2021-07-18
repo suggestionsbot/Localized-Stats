@@ -32,8 +32,8 @@ bot = StatBot(
     activity=discord.Game(name="Playing with statistics"),
 )
 
-# bot.datastore = Mongo(MONGO_URL)
-bot.datastore = Sqlite()
+bot.datastore = Mongo(MONGO_URL)
+# bot.datastore = Sqlite()
 bot.manager = Manager(bot.datastore)
 
 
