@@ -6,7 +6,7 @@ import motor.motor_asyncio
 from discord.ext import commands
 from discord.ext.commands import MinimalHelpCommand
 
-from .mongo import Document
+from .document import Document
 
 
 class StatBot(commands.Bot):
