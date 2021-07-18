@@ -53,11 +53,11 @@ async def create_indexes(ctx):
     await bot.datastore.create_indexes()
 
 
-@bot.command(aliases=["gh"])
+@bot.command(aliases=["gh"], enabled=False)
 @commands.is_owner()
 async def get_helpers(ctx):
     """Mongo Helpers -> SQlite"""
-    mongo = Mongo(MONGO_URL)
+    mongo = Mongo("MONGO_URL")
     x = await mongo.fetch_helpers()
     helpers = [x.identifier for x in x]
     for h in helpers:

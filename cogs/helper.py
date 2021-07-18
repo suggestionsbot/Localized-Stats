@@ -12,13 +12,12 @@ class Helper(commands.Cog):
         print(f"{self.__class__.__name__}: Ready")
 
     @commands.group(invoke_without_command=True, aliases=["h"])
-    @commands.cooldown(1, 1, commands.BucketType)
     async def helper(self, ctx):
         """The entry point for all helper commands."""
         await ctx.invoke(self.bot.get_command("help"), entity="helper")
 
     @helper.command(name="stats")
-    @commands.cooldown(1, 5, commands.BucketType)
+    @commands.cooldown(1, 5)
     async def stats(self, ctx, helper: discord.Member = None):
         """Get the stats of a helper!"""
         user = helper or ctx.author
