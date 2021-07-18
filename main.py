@@ -56,6 +56,7 @@ async def create_indexes(ctx):
 @bot.command(aliases=["gh"])
 @commands.is_owner()
 async def get_helpers(ctx):
+    """Mongo Helpers -> SQlite"""
     mongo = Mongo(MONGO_URL)
     x = await mongo.fetch_helpers()
     helpers = [x.identifier for x in x]
@@ -71,7 +72,7 @@ async def gen_scatter_timexmessages(ctx):
     await bot.manager.build_timed_scatter_plot()
 
 
-@bot.command(name="eval", aliases=["exec"])
+@bot.command(name="eval", aliases=["exec"], hidden=True)
 @commands.is_owner()
 async def _eval(ctx, *, code):
     """
