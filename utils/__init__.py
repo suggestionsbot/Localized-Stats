@@ -1,2 +1,2 @@
 from .statbot import StatBot
-from .mongo import Document
+from .document import Document
