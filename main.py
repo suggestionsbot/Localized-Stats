@@ -46,13 +46,6 @@ async def logout(ctx):
     await bot.logout()
 
 
-@bot.command()
-@commands.is_owner()
-async def create_indexes(ctx):
-    """Creates database indexes"""
-    await bot.datastore.create_indexes()
-
-
 @bot.command(aliases=["gh"], enabled=False)
 @commands.is_owner()
 async def get_helpers(ctx):
@@ -63,13 +56,6 @@ async def get_helpers(ctx):
     for h in helpers:
         await bot.datastore.store_helper(Helper(identifier=h))
     await ctx.send(helpers)
-
-
-@bot.command()
-@commands.is_owner()
-async def gen_scatter_timexmessages(ctx):
-    """Builds a scatter plot of Time x Messages"""
-    await bot.manager.build_timed_scatter_plot()
 
 
 @bot.command(name="eval", aliases=["exec"], hidden=True)
