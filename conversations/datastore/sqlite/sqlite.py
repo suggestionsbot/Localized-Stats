@@ -1,10 +1,12 @@
 import functools
+import json
 import os
 from datetime import timedelta
 from pathlib import Path
 from typing import List
 
 import aiosqlite as aiosqlite
+from attr import asdict
 
 from conversations import Helper, Conversation, Message
 from conversations.abc import DataStore
@@ -29,6 +31,22 @@ class Sqlite(DataStore):
 
     @ensure_struct
     async def save_conversation(self, conversation: Conversation) -> None:
+        with open("text.json", "w") as file:
+            x = asdict(conversation)
+            x["end_time"] = x["end_time"].strftime(
+                        "%f:%S:%M:%H:%d:%m:%Y"
+                    )
+            x["start_time"] = x["start_time"].strftime(
+                        "%f:%S:%M:%H:%d:%m:%Y"
+                    )
+
+            for m in x["messages"]:
+                m["timestamp"] = m["timestamp"].strftime(
+                        "%f:%S:%M:%H:%d:%m:%Y"
+                    )
+
+            json.dump(x, file, indent=4)
+
         async with aiosqlite.connect(self.db) as db:
             await db.execute(
                 "INSERT INTO Conversation "
@@ -118,8 +136,12 @@ class Sqlite(DataStore):
                 helpers = []
                 helpers_raw = await cursor.fetchall()
                 for val in helpers_raw:
-                    per_convo_messages = [item[3] for item in val]
-                    convos = [timedelta(seconds=s[4]) for s in val]
+                    if len(val) == 3:
+                        val = (val[0], val[1], val[2], 0, 0)
+                    elif len(val) == 4:
+                        val = (val[0], val[1], val[2], val[3], 0)
+                    per_convo_messages = [] # [item[3] for item in val]
+                    convos = [] #[timedelta(seconds=s[4]) for s in val]
 
                     helpers.append(
                         Helper(
