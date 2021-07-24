@@ -49,17 +49,6 @@ class DataStore(Protocol):
         """
         raise NotImplementedError
 
-    async def fetch_helpers(self) -> List[Helper]: # TODO remove this cos duplicate
-        """
-        Get all of the currently stored helpers
-
-        Returns
-        -------
-        List[Helper]
-            A list of all valid helper objects
-        """
-        raise NotImplementedError
-
     async def fetch_helper(self, identifier: int) -> Helper:
         """
         Given an identifier, return a valid

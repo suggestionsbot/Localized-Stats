@@ -40,7 +40,7 @@ class Manager:
             return
 
         if not self.helpers:
-            helpers = await self.datastore.fetch_helpers()
+            helpers = await self.datastore.fetch_all_helpers()
 
             self.helpers = {}
             for helper in helpers:

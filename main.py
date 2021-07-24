@@ -9,7 +9,7 @@ import discord
 from discord.ext import commands
 
 from conversations import Manager, Mongo, Helper, Plots
-from conversations.datastore import Sqlite
+from conversations.datastore import Sqlite, ApiStore
 from utils import StatBot
 from utils.util import Pag
 
@@ -33,7 +33,8 @@ bot = StatBot(
     mongo=MONGO_URL,
 )
 
-bot.datastore = Mongo(MONGO_URL)
+bot.datastore = ApiStore()
+# bot.datastore = Mongo(MONGO_URL)
 # bot.datastore = Sqlite()
 bot.manager = Manager(bot.datastore)
 
@@ -81,10 +82,7 @@ async def _eval(ctx, *, code):
 
     try:
         with contextlib.redirect_stdout(stdout):
-            exec(
-                f"async def func():\n{textwrap.indent(code, '    ')}",
-                local_variables,
-            )
+            exec(f"async def func():\n{textwrap.indent(code, '    ')}", local_variables)
 
             obj = await local_variables["func"]()
             result = f"{stdout.getvalue()}\n-- {obj}\n"
