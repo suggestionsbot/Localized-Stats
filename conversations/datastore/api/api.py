@@ -30,6 +30,9 @@ class ApiStore(DataStore):
         """Make a request to test the access token works.
         If it does not, use the refresh token and get a new one.
         """
+        if self.access_token is None:
+            await self._set_new_tokens()
+
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 self.base_url + "token/validate/", data={"token": self.access_token}
@@ -38,6 +41,9 @@ class ApiStore(DataStore):
                     return
 
         # We need a new access token
+        if self.refresh_token is None:
+            await self._set_new_tokens()
+
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 self.base_url + "token/refresh/", data={"refresh": self.refresh_token}
