@@ -38,6 +38,19 @@ bot.datastore = ApiStore()
 # bot.datastore = Sqlite()
 bot.manager = Manager(bot.datastore)
 
+bot.internal_helpers = (
+    203104843479515136,
+    203104843479515136,
+    289546108751839232,
+    456174857034661888,
+    726531923131891782,
+    221091847412383754,
+    158063324699951104,
+    271612318947868673,
+    651386805043593237,
+)
+bot.internal_helpers = set(bot.internal_helpers)
+
 
 @bot.command()
 @commands.is_owner()

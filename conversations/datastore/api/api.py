@@ -158,12 +158,31 @@ class ApiStore(DataStore):
 
         return Helper(**return_data)
 
-    async def store_helper(self, helper: Helper) -> None:
-        """Don't store as Django generates helper on the fly
+    # noinspection PyMethodOverriding
+    async def store_helper(
+        self, helper: Helper, username: str, password: str, is_helper: bool = False
+    ) -> None:
+        """Creates a user for Django and gives em access"""
+        # Don't overwrite helpers
+        # TODO Make a 'raw' route that returns helpers even if they arent marked as a helper
+        data = {
+            "username": username,
+            "password": password,
+            "discord_user_id": helper.identifier,
+            "is_helper": is_helper,
+        }
+        status, _ = await self._make_post_request(
+            self.base_url + "account/create/", data
+        )
+        assert status == 201
 
-        Perks of SQL y'all
-        """
-        pass
+    async def fetch_all_users(self):
+        """Returns a list of all internal usernames"""
+        status, return_data = await self._make_get_request(
+            self.base_url + "account/get/all/"
+        )
+        assert status == 200
+        return return_data
 
     async def remove_helper(self, identifier: int) -> None:
         """Doesnt look used so ok atm"""
