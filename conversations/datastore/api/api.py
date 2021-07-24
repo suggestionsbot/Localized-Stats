@@ -163,8 +163,6 @@ class ApiStore(DataStore):
         self, helper: Helper, username: str, password: str, is_helper: bool = False
     ) -> None:
         """Creates a user for Django and gives em access"""
-        # Don't overwrite helpers
-        # TODO Make a 'raw' route that returns helpers even if they arent marked as a helper
         data = {
             "username": username,
             "password": password,

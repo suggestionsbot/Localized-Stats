@@ -50,6 +50,8 @@ bot.internal_helpers = (
     651386805043593237,
 )
 bot.internal_helpers = set(bot.internal_helpers)
+bot.leadership = (271612318947868673, 158063324699951104)
+bot.leadership = set(bot.leadership)
 
 
 @bot.command()

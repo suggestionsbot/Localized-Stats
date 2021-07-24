@@ -61,6 +61,8 @@ class Helper(commands.Cog):
     @is_donator_or_staff()
     async def create(self, ctx, member: discord.Member = None):
         """Registers a helper internally"""
+        if member and ctx.author.id not in self.bot.leadership:
+            return
         member = member or ctx.author
 
         if not isinstance(self.bot.datastore, ApiStore):
