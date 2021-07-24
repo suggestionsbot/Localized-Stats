@@ -20,6 +20,9 @@ class DevOps(commands.Cog):
     @commands.has_role(603803993562677258)
     async def build_past_stats(self, ctx, channel: discord.TextChannel = None):
         """Builds stats for the given channel using all of the currently stored messages"""
+        if not channel:
+            channel = self.bot.get_channel(602327123767590992)
+
         start_time = timeit.default_timer()
         async with ctx.typing():
             with cProfile.Profile() as pr:
