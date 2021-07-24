@@ -60,7 +60,7 @@ def get_random_string():
     return "".join(random.choice(letters) for i in range(8))
 
 
-@bot.command()
+@bot.command(enabled=False)
 @commands.is_owner()
 async def setup_helpers(ctx):
     stuff = {}
