@@ -146,7 +146,7 @@ class ApiStore(DataStore):
 
     async def fetch_helper(self, identifier: int) -> Helper:
         status, return_data = await self._make_get_request(
-            self.base_url + f"helper/get/?id={identifier}"
+            self.base_url + f"helper/get/?discord_id={identifier}"
         )
         assert status == 200
 

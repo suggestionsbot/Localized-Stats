@@ -138,8 +138,8 @@ class Manager:
         await self.datastore.save_conversation(conversation)
         finished.append(conversation)
 
-        for helper in self.helpers.values():
-            await self.datastore.store_helper(helper)
+        # for helper in self.helpers.values():
+        # await self.datastore.store_helper(helper)
 
         return finished
 
@@ -181,13 +181,7 @@ class Manager:
         for i in range(len(total_conversations)):
             user = await guild.fetch_member(helpers[i].identifier)
             offset = total_conversations[i] + move_amount
-            plt.annotate(
-                user.display_name,
-                (
-                    offset,
-                    y[i],
-                ),
-            )
+            plt.annotate(user.display_name, (offset, y[i]))
 
         plt.xlabel("Total Support Conversations")
         plt.ylabel("Average Messages Per Conversation")
@@ -221,13 +215,7 @@ class Manager:
         for i in range(len(total_conversations)):
             user = await guild.fetch_member(helpers[i].identifier)
             offset = total_conversations[i] + move_amount
-            plt.annotate(
-                user.display_name,
-                (
-                    offset,
-                    average_help_times[i],
-                ),
-            )
+            plt.annotate(user.display_name, (offset, average_help_times[i]))
 
         return plt
 

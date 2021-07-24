@@ -62,7 +62,11 @@ class Helper:
         Returns the average amount of minutes
         spent per support conversation
         """
-        time_in_seconds = sum(self.conversation_length) / len(self.conversation_length)
+        summed = 0
+        for item in self.conversation_length:
+            summed += item.total_seconds()
+        length = len(self.conversation_length)
+        time_in_seconds = summed / length
         return round(time_in_seconds / 60)
 
 

@@ -1,6 +1,8 @@
 import io
 import os
 import logging
+import random
+import string
 import textwrap
 import contextlib
 from traceback import format_exception
@@ -40,7 +42,6 @@ bot.manager = Manager(bot.datastore)
 
 bot.internal_helpers = (
     203104843479515136,
-    203104843479515136,
     289546108751839232,
     456174857034661888,
     726531923131891782,
@@ -52,6 +53,32 @@ bot.internal_helpers = (
 bot.internal_helpers = set(bot.internal_helpers)
 bot.leadership = (271612318947868673, 158063324699951104)
 bot.leadership = set(bot.leadership)
+
+
+def get_random_string():
+    letters = string.ascii_lowercase
+    return "".join(random.choice(letters) for i in range(8))
+
+
+@bot.command()
+@commands.is_owner()
+async def setup_helpers(ctx):
+    stuff = {}
+    for user_id in bot.internal_helpers:
+        member = ctx.guild.get_member(user_id)
+        password = get_random_string()
+
+        if user_id == 289546108751839232:
+            name = "InteriorHood"
+        else:
+            name = member.name
+
+        stuff[name] = password
+
+        await bot.datastore.store_helper(Helper(member.id), name, password, True)
+
+    print(stuff)
+    await ctx.send(stuff)
 
 
 @bot.command()
