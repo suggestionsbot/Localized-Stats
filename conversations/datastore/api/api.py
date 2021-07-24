@@ -5,7 +5,7 @@ from typing import List, Tuple
 import aiohttp
 from attr import asdict
 
-from conversations import Helper, Conversation
+from conversations import Helper, Conversation, Message
 from conversations.abc import DataStore
 
 
@@ -194,6 +194,7 @@ class ApiStore(DataStore):
 
         conversations = []
         for conversation in return_data:
+            conversation["identifier"] = conversation.pop("id")
             conversation["start_time"] = self._convert_to_datetime(
                 conversation["start_time"]
             )
@@ -201,8 +202,14 @@ class ApiStore(DataStore):
                 conversation["end_time"]
             )
 
+            messages = []
             for m in conversation["messages"]:
+                m.pop("id")
+                m.pop("conversation")
                 m["timestamp"] = self._convert_to_datetime(m["timestamp"])
+                messages.append(Message(**m))
+
+            conversation["messages"] = messages
 
             conversations.append(Conversation(**conversation))
 
