@@ -202,8 +202,8 @@ class Manager:
 
         average_help_times = []
         for x in average_help_times_raw:
-            time_in_seconds = sum(x) / len(x)
-            time_in_minutes = round(time_in_seconds / 60)
+            time_in_seconds = sum(x, datetime.timedelta()) / len(x)
+            time_in_minutes = round(time_in_seconds.total_seconds() / 60)
             average_help_times.append(time_in_minutes)
 
         plt.plot(total_conversations, average_help_times, "o", color="black")
