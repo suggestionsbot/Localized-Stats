@@ -119,8 +119,12 @@ class Manager:
                 helper = self.helpers[message.author.id]
                 helper.total_messages += 1
 
-            if message.embeds or not message.content:
-                # skip embeds and messages with empty content
+            if not message.content or message.author.bot:
+                """
+                Skip the following:
+                 - Messages from bots
+                 - Messages with no content
+                """
                 continue
 
             conversation.messages.append(
