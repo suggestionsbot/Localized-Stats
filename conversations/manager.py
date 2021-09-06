@@ -72,7 +72,11 @@ class Manager:
         finished = []
         current_helpers = {}
         async for message in channel.history(limit=None, oldest_first=True):
-            if not conversation and message.author.id not in self.helper_ids:
+            if (
+                (not conversation and message.author.id not in self.helper_ids)
+                and message.content
+                and not message.author.bot
+            ):
                 # Start a new conversation
                 conversation = Conversation(
                     message.id,
@@ -87,7 +91,7 @@ class Manager:
                 conversation
                 and message.author.id != conversation.user_being_helped
                 and message.author.id not in self.helper_ids
-            ):
+            ) and (message.content and not message.author.bot):
                 # Start a new conversation
                 for helper_id, msg_count in current_helpers.items():
                     self.helpers[helper_id].conversation_length.append(
