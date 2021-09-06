@@ -17,8 +17,8 @@ class ApiStore(DataStore):
 
         self.session = aiohttp.ClientSession()
 
-        # self.base_url = "https://stats.koldfusion.xyz/api/"
-        self.base_url = "http://127.0.0.1:8000/api/"
+        self.base_url = "https://stats.koldfusion.xyz/api/"
+        # self.base_url = "http://127.0.0.1:8000/api/"
 
     async def _set_new_tokens(self) -> None:
         """Get and set a set of tokens using USERNAME / PASSWORD"""
