@@ -135,7 +135,7 @@ class Manager:
                 Message(
                     message.author.id,
                     message.channel.id,
-                    message.content,
+                    message.clean_content,
                     message.guild.id,
                     message.id,
                     message.created_at,
